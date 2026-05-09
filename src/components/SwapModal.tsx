@@ -111,27 +111,28 @@ export function SwapModal({ command, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[110] flex items-start justify-center bg-zinc-950/70 px-4 pt-[min(20vh,8rem)] backdrop-blur-sm"
+      className="fixed inset-0 z-[110] overflow-y-auto overscroll-y-contain bg-zinc-950/70 px-4 py-10 backdrop-blur-sm sm:px-6 sm:py-12"
       role="presentation"
       onMouseDown={onBackdropClick}
     >
-      <div
-        className="animate-fade-in w-full max-w-xl overflow-hidden rounded-xl border border-zinc-800 bg-[#1c1c1e] shadow-2xl shadow-black/50"
-        role="dialog"
-        aria-modal="true"
-        onMouseDown={(e) => e.stopPropagation()}
-      >
-        <div className="border-b border-zinc-800 px-4 py-3">
-          <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-            Swap
-          </p>
-          <p className="mt-0.5 text-sm text-zinc-300">
-            {fromToken.symbol} → {toToken.symbol}
-          </p>
-        </div>
+      <div className="mx-auto flex min-h-[calc(100dvh-5rem)] w-full max-w-xl items-start justify-center sm:items-center">
+        <div
+          className="animate-fade-in flex w-full max-h-[calc(100dvh-5rem)] flex-col overflow-hidden rounded-xl border border-zinc-800 bg-[#1c1c1e] shadow-2xl shadow-black/50"
+          role="dialog"
+          aria-modal="true"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <div className="shrink-0 border-b border-zinc-800 px-6 py-4">
+            <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+              Swap
+            </p>
+            <p className="mt-1 text-sm text-zinc-300">
+              {fromToken.symbol} → {toToken.symbol}
+            </p>
+          </div>
 
-        <div className="space-y-4 p-4">
-          <label className="block">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-6 space-y-6">
+          <div>
             <span className="text-xs uppercase tracking-wide text-zinc-500">
               Amount ({fromToken.symbol})
             </span>
@@ -145,9 +146,9 @@ export function SwapModal({ command, onClose }: Props) {
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0.0"
               disabled={status === "swapping"}
-              className="mt-1 w-full rounded-lg border border-zinc-800 bg-[#0c0c0d] px-3 py-2.5 font-mono text-base text-zinc-100 placeholder:text-zinc-600 outline-none transition-[border-color,box-shadow] focus:border-[#5d40a3] focus:ring-2 focus:ring-[#5d40a3]/35 disabled:opacity-50"
+              className="mt-2 w-full rounded-lg border border-zinc-800 bg-[#0c0c0d] px-4 py-3 font-mono text-base text-zinc-100 placeholder:text-zinc-600 outline-none transition-[border-color,box-shadow] focus:border-[#5d40a3] focus:ring-2 focus:ring-[#5d40a3]/35 disabled:opacity-50"
             />
-          </label>
+          </div>
 
           <QuoteSummary
             status={status}
@@ -161,7 +162,7 @@ export function SwapModal({ command, onClose }: Props) {
 
           {message ? (
             <div
-              className={`rounded-lg border px-3 py-2 text-sm ${
+              className={`rounded-lg border px-4 py-3 text-sm leading-relaxed ${
                 status === "error"
                   ? "border-red-500/30 bg-red-500/10 text-red-200"
                   : status === "done"
@@ -171,17 +172,18 @@ export function SwapModal({ command, onClose }: Props) {
             >
               {message}
               {signature ? (
-                <p className="mt-2 break-all font-mono text-xs opacity-90">{signature}</p>
+                <p className="mt-3 break-all font-mono text-xs opacity-90">{signature}</p>
               ) : null}
             </div>
           ) : null}
+        </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+        <div className="flex shrink-0 justify-end gap-3 border-t border-zinc-800 bg-[#1c1c1e] px-6 py-4">
             <button
               type="button"
               onClick={onClose}
               disabled={status === "swapping"}
-              className="rounded-lg px-3 py-1.5 text-sm text-zinc-400 transition hover:bg-zinc-800/60 hover:text-zinc-200 disabled:opacity-40"
+              className="rounded-lg px-3 py-2 text-sm text-zinc-400 transition hover:bg-zinc-800/60 hover:text-zinc-200 disabled:opacity-40"
             >
               Cancel
             </button>
@@ -189,7 +191,7 @@ export function SwapModal({ command, onClose }: Props) {
               type="button"
               onClick={() => void confirmSwap()}
               disabled={!quote || status === "swapping" || status === "quoting"}
-              className="rounded-lg bg-[#3c2b6b] px-4 py-1.5 text-sm font-medium text-zinc-100 shadow-lg shadow-black/25 transition hover:bg-[#4a3585] disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-lg bg-[#3c2b6b] px-4 py-2 text-sm font-medium text-zinc-100 shadow-lg shadow-black/25 transition hover:bg-[#4a3585] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {status === "swapping" ? "Swapping…" : "Confirm swap"}
             </button>
@@ -215,7 +217,7 @@ function QuoteSummary({
 }) {
   if (status === "quoting") {
     return (
-      <div className="rounded-lg border border-zinc-800 bg-[#0c0c0d] px-3 py-3 text-sm text-zinc-400">
+      <div className="rounded-lg border border-zinc-800 bg-[#0c0c0d] px-4 py-4 text-sm text-zinc-400">
         Fetching best route…
       </div>
     );
@@ -232,14 +234,14 @@ function QuoteSummary({
           : "text-red-400";
 
   return (
-    <div className="rounded-lg border border-zinc-800 bg-[#0c0c0d] p-3">
-      <div className="flex items-baseline justify-between">
+    <div className="rounded-lg border border-zinc-800 bg-[#0c0c0d] p-4">
+      <div className="flex items-baseline justify-between gap-4">
         <span className="text-xs uppercase tracking-wide text-zinc-500">You receive</span>
-        <span className="font-mono text-lg text-zinc-100">
+        <span className="text-right font-mono text-lg text-zinc-100">
           ~{outAmount.toFixed(6)} {toSymbol}
         </span>
       </div>
-      <dl className="mt-3 space-y-1 text-xs">
+      <dl className="mt-4 space-y-2 border-t border-zinc-800/80 pt-4 text-xs">
         <Row label="Min received" value={`${minReceived?.toFixed(6) ?? "—"} ${toSymbol}`} />
         <Row
           label="Price impact"
@@ -262,9 +264,9 @@ function Row({ label, value, valueClass }: { label: string; value: string; value
 
 function RouteBreakdown({ quote }: { quote: SwapQuote }) {
   return (
-    <div className="rounded-lg border border-zinc-800 bg-[#0c0c0d] p-3">
+    <div className="rounded-lg border border-zinc-800 bg-[#0c0c0d] p-4">
       <p className="text-xs uppercase tracking-wide text-zinc-500">Route</p>
-      <ol className="mt-2 space-y-1 text-xs text-zinc-300">
+      <ol className="mt-3 space-y-2.5 text-xs text-zinc-300">
         {quote.routePlan.map((hop, i) => (
           <li key={`${hop.label}-${i}`} className="flex items-center justify-between">
             <span>

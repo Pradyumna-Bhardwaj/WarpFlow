@@ -11,7 +11,8 @@ export function parseSwapCommand(input: string):
   if (!match) {
     return {
       ok: false,
-      error: 'Try: swap SOL for USDC — or: swap 0.1 SOL for USDC.',
+      error:
+        "Use: swap SOL for USDC (or swap 0.1 SOL for USDC). Tokens must be on Solana — for SOL→ETH use bridge sol to eth from the palette, not swap.",
     };
   }
 
@@ -20,8 +21,12 @@ export function parseSwapCommand(input: string):
   const fromToken: TokenInfo | undefined = findToken(fromRaw!);
   const toToken: TokenInfo | undefined = findToken(toRaw!);
 
-  if (!fromToken) return { ok: false, error: `Unknown token: ${fromRaw}` };
-  if (!toToken)   return { ok: false, error: `Unknown token: ${toRaw}` };
+  if (!fromToken) return { ok: false, error: `Unknown token: ${fromRaw}. Supported: SOL, USDC, USDT, JUP, BONK, RAY, JTO, PYTH, WIF, ORCA.` };
+  if (!toToken)
+    return {
+      ok: false,
+      error: `Unknown token: ${toRaw}. SOL→ETH is not a Jupiter swap; use: bridge sol to eth`,
+    };
   if (fromToken.mint === toToken.mint) {
     return { ok: false, error: "Input and output tokens must differ." };
   }

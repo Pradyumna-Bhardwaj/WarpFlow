@@ -74,7 +74,8 @@ function Shell() {
           </p>
           <ul className="mt-6 list-inside list-disc space-y-2 text-sm text-violet-300/70">
             <li>Uses your injected wallet for signing (Phantom, Solflare, …)</li>
-            <li>Commands like: transfer 0.01 SOL to &lt;recipient&gt;</li>
+            <li>Commands: transfer 0.01 SOL to a Solana address</li>
+            <li>Cross-chain (NEAR Intents): bridge sol to eth</li>
           </ul>
         </section>
 

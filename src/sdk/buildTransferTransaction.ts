@@ -34,3 +34,34 @@ export async function buildSolTransferTransaction(
 
   return tx;
 }
+
+/** Sends an exact lamport amount (e.g. from a 1Click `amountIn` quote). */
+export async function buildSolTransferTransactionLamports(
+  connection: Connection,
+  from: PublicKey,
+  to: PublicKey,
+  lamports: bigint
+): Promise<Transaction> {
+  if (lamports <= 0n) {
+    throw new Error("Lamports must be positive.");
+  }
+  const n = Number(lamports);
+  if (!Number.isSafeInteger(n)) {
+    throw new Error("Amount is too large for a single SystemProgram transfer.");
+  }
+
+  const { blockhash, lastValidBlockHeight } =
+    await connection.getLatestBlockhash("confirmed");
+
+  const ix = SystemProgram.transfer({
+    fromPubkey: from,
+    toPubkey: to,
+    lamports: n,
+  });
+
+  return new Transaction({
+    feePayer: from,
+    blockhash,
+    lastValidBlockHeight,
+  }).add(ix);
+}

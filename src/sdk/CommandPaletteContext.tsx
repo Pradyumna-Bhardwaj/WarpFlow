@@ -9,8 +9,13 @@ import {
 } from "react";
 import type { Connection } from "@solana/web3.js";
 import { CommandPalette } from "./CommandPalette";
+import { CrossChainModal } from "../components/CrossChainModal";
 import { SwapModal } from "../components/SwapModal";
-import type { ParsedSwapCommand, SolanaWalletClient } from "./types";
+import type {
+  ParsedCrossChainTransferCommand,
+  ParsedSwapCommand,
+  SolanaWalletClient,
+} from "./types";
 
 export interface CommandPaletteContextValue {
   open: boolean;
@@ -20,6 +25,8 @@ export interface CommandPaletteContextValue {
   walletClient: SolanaWalletClient;
   openSwap: (command: ParsedSwapCommand) => void;
   closeSwap: () => void;
+  openCrossChain: (command: ParsedCrossChainTransferCommand) => void;
+  closeCrossChain: () => void;
 }
 
 const CommandPaletteContext = createContext<CommandPaletteContextValue | null>(null);
@@ -45,17 +52,31 @@ export function CommandPaletteProvider({
 }: CommandPaletteProviderProps) {
   const [open, setOpen] = useState(false);
   const [swapCommand, setSwapCommand] = useState<ParsedSwapCommand | null>(null);
+  const [crossChainCommand, setCrossChainCommand] =
+    useState<ParsedCrossChainTransferCommand | null>(null);
 
   const toggle = useCallback(() => setOpen((v) => !v), []);
   const openSwap = useCallback((cmd: ParsedSwapCommand) => {
     setOpen(false);
+    setCrossChainCommand(null);
     setSwapCommand(cmd);
   }, []);
   const closeSwap = useCallback(() => setSwapCommand(null), []);
+  const openCrossChain = useCallback((cmd: ParsedCrossChainTransferCommand) => {
+    setOpen(false);
+    setSwapCommand(null);
+    setCrossChainCommand(cmd);
+  }, []);
+  const closeCrossChain = useCallback(() => setCrossChainCommand(null), []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        if (crossChainCommand) {
+          e.preventDefault();
+          setCrossChainCommand(null);
+          return;
+        }
         if (swapCommand) {
           e.preventDefault();
           setSwapCommand(null);
@@ -75,11 +96,21 @@ export function CommandPaletteProvider({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, swapCommand]);
+  }, [open, swapCommand, crossChainCommand]);
 
   const value = useMemo(
-    () => ({ open, setOpen, toggle, connection, walletClient, openSwap, closeSwap }),
-    [open, toggle, connection, walletClient, openSwap, closeSwap]
+    () => ({
+      open,
+      setOpen,
+      toggle,
+      connection,
+      walletClient,
+      openSwap,
+      closeSwap,
+      openCrossChain,
+      closeCrossChain,
+    }),
+    [open, toggle, connection, walletClient, openSwap, closeSwap, openCrossChain, closeCrossChain]
   );
 
   return (
@@ -87,6 +118,9 @@ export function CommandPaletteProvider({
       {children}
       {open ? <CommandPalette /> : null}
       {swapCommand ? <SwapModal command={swapCommand} onClose={closeSwap} /> : null}
+      {crossChainCommand ? (
+        <CrossChainModal command={crossChainCommand} onClose={closeCrossChain} />
+      ) : null}
     </CommandPaletteContext.Provider>
   );
 }
