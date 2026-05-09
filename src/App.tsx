@@ -22,7 +22,7 @@ import { Pricing } from "./components/Pricing";
 import { WarpGrid } from "./components/WarpGrid";
 import { Hero } from "./components/Hero";
 
-const network = WalletAdapterNetwork.Devnet;
+const network = WalletAdapterNetwork.Mainnet;
 const endpoint = clusterApiUrl(network);
 
 function Shell() {
