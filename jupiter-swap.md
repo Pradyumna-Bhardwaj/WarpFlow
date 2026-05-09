@@ -1,0 +1,93 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://dev.jup.ag/docs/llms.txt
+> Use this file to discover all available pages before exploring further.
+
+# Overview
+
+> One API for all swap use cases on Jupiter
+
+The Swap API unifies Jupiter's swap capabilities into a single entry point at `https://api.jup.ag/swap/v2`. Two paths cover every use case:
+
+* **Meta-Aggregator**: all routing engines compete for the best price. You get a fully assembled transaction, sign it, and Jupiter handles landing.
+* **Router**: Metis onchain routing only. You get raw swap instructions with full transaction control for custom builds, CPI, and composability.
+
+<CardGroup cols={2}>
+  <Card title="Meta-Aggregator" icon="bolt" href="/swap/order-and-execute">
+    All routers compete (Metis, JupiterZ, Dflow, OKX). Best price, simplest flow. Sign and send to Jupiter for managed landing.
+  </Card>
+
+  <Card title="Router" icon="code" href="/swap/build">
+    Metis onchain routing. Get raw swap instructions to build your own transaction. Add custom instructions, CPI, or modify the transaction however you need.
+  </Card>
+</CardGroup>
+
+## Choosing a path
+
+|                              | Meta-Aggregator                                                                                     | Router                                                                                                                          |
+| ---------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **Endpoints**                | [`/order`](/swap/order-and-execute) + [`/execute`](/swap/order-and-execute#execute-the-transaction) | [`/build`](/swap/build) + [`/submit`](/transaction/submit)                                                                      |
+| **Returns**                  | Assembled transaction                                                                               | Raw swap instructions                                                                                                           |
+| **Routers**                  | All (Metis, JupiterZ, Dflow, OKX)                                                                   | Metis only                                                                                                                      |
+| **Best for**                 | Most integrations. Best price, simplest flow.                                                       | Custom transactions, CPI, composability.                                                                                        |
+| **Transaction landing**      | Managed via `/execute` (optimised slippage, priority fees, proprietary landing pipeline)            | Self-managed via your own RPC, or via [`/submit`](/transaction/submit) with SOL tips for Jupiter's proprietary landing pipeline |
+| **Swap fees**                | Yes (Jupiter platform fee)                                                                          | No                                                                                                                              |
+| **Integrator fees**          | Referral fees (referralAccount + referralFee)                                                       | Platform fee only (platformFeeBps) or DIY                                                                                       |
+| **Gasless**                  | [Automatic gasless, or your own `payer`](/swap/advanced/gasless)                                    | Use your own `payer`                                                                                                            |
+| **Transaction modification** | No                                                                                                  | Full control                                                                                                                    |
+
+**Start with the Meta-Aggregator.** It gives you the best price because all routers compete, including RFQ market makers who often beat onchain routing by 5-20bps on major pairs. Only use the Router if you need to modify the transaction.
+
+## Routing engines
+
+Jupiter's routing combines multiple engines and selects the best execution price across all of them, with a self-learning mechanism that automatically sidelines underperforming sources.
+
+| Engine       | Role                                                                                                                                                        | Availability             |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| **Metis**    | Jupiter's onchain routing engine. Multi-hop, multi-split swaps across Solana DEXes. Also available as an [independent public good](https://metis.builders). | Meta-Aggregator + Router |
+| **JupiterZ** | RFQ (Request for Quote) system where market makers compete to provide off-chain liquidity. Often beats onchain by 5-20bps on major pairs.                   | Meta-Aggregator only     |
+| **Dflow**    | Third-party on-chain router.                                                                                                                                | Meta-Aggregator only     |
+| **OKX**      | Third-party OKX liquidity.                                                                                                                                  | Meta-Aggregator only     |
+
+<Note>
+  JupiterZ (RFQ) is only available through the Meta-Aggregator.
+
+  * Jupiter runs safety and validation mechanisms between integrators and market makers, and market makers have last-look execution rights, which requires controlled transaction handling to ensure validity and prevent spam.
+  * Transactions routed through JupiterZ cannot be modified after `/order` returns them, so use cases that require CPI, custom instructions, or any transaction modification must use the Router path.
+</Note>
+
+## Endpoints
+
+All endpoints require an API key via the `x-api-key` header. Get one at [Portal](https://developers.jup.ag/portal).
+
+**Meta-Aggregator**
+
+| Method | Endpoint                                                              | Description                                                |
+| ------ | --------------------------------------------------------------------- | ---------------------------------------------------------- |
+| GET    | [`/swap/v2/order`](/swap/order-and-execute)                           | Get a quote and assembled transaction                      |
+| POST   | [`/swap/v2/execute`](/swap/order-and-execute#execute-the-transaction) | Execute a signed `/order` transaction with managed landing |
+
+**Router**
+
+| Method | Endpoint                               | Description                                                                                |
+| ------ | -------------------------------------- | ------------------------------------------------------------------------------------------ |
+| GET    | [`/swap/v2/build`](/swap/build)        | Get a quote and raw swap instructions                                                      |
+| POST   | [`/tx/v1/submit`](/transaction/submit) | Submit any signed transaction through Jupiter's proprietary landing pipeline with SOL tips |
+
+## Learn More
+
+<CardGroup cols={2}>
+  <Card title="Advanced" icon="gear" href="/swap/advanced">
+    Gasless swaps, compute unit estimation, reducing transaction size and latency.
+  </Card>
+
+  <Card title="Migration Guides" icon="arrow-right" href="/swap/migration/metis-to-build">
+    Migrating from Ultra or Metis to the Swap API.
+  </Card>
+</CardGroup>
+
+## Integrate into routing
+
+If you want your liquidity routed through Jupiter:
+
+* **DEX operators**: [Integrate DEX into Metis](/swap/routing/dex-integration) to get your markets included in Jupiter's onchain routing.
+* **Market makers**: [Integrate into JupiterZ (RFQ)](/swap/routing/rfq-integration) to provide off-chain liquidity via the RFQ system.
